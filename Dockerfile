@@ -7,7 +7,7 @@ ENV VIRTUAL_ENV=/app/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 COPY ./requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+RUN pip install -r /app/requirements.txt
 
 # Stage 2
 FROM python:3-alpine AS runner
@@ -23,4 +23,4 @@ ENV FLASK_APP=app/rest_api/main.py
 
 EXPOSE 8000
 
-CMD [ "uvicorn", "--host", "0.0.0.0", "rest_api.main:app" ]
+CMD [ "uvicorn", "--host", "0.0.0.0", "app.rest_api.main:app" ]
