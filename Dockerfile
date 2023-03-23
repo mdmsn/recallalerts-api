@@ -23,4 +23,4 @@ ENV FLASK_APP=app/rest_api/main.py
 
 EXPOSE 8000
 
-CMD [ "uvicorn", "--host", "0.0.0.0", "main:app" ]
+CMD [ "uvicorn", "--host", "0.0.0.0", "rest_api.main:app" ]
