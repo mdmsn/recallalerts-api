@@ -1,10 +1,7 @@
-from typing import List
-
-from fastapi import Depends, FastAPI, HTTPException, status
-
-from sqlalchemy.orm import Session
-
 import os
+from typing import List
+from fastapi import Depends, FastAPI, HTTPException, status
+from sqlalchemy.orm import Session
 from . import crud, models, schemas, auth
 from .database import SessionLocal, engine
 from dotenv import load_dotenv
@@ -32,6 +29,10 @@ def get_db():
         yield database
     finally:
         database.close()
+
+@app.get("/welcome")
+def get_test_resource():
+    return { "message": "recall alerts api" }
 
 
 # register for an account
