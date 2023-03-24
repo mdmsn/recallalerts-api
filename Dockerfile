@@ -15,12 +15,13 @@ FROM python:3-alpine AS runner
 WORKDIR /app
 
 COPY --from=builder /app/venv venv
-COPY ./rest_api /rest_api
+COPY main.py /app/main.py
+COPY src ./src
 
 ENV VIRTUAL_ENV=/app/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-ENV FLASK_APP=app/rest_api/main.py
+ENV FLASK_APP=app/main.py
 
 EXPOSE 8000
 
-CMD [ "uvicorn", "--host", "0.0.0.0", "rest_api.main:app" ]
+CMD [ "uvicorn", "--host", "0.0.0.0", "main:app" ]

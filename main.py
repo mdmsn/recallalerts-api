@@ -2,8 +2,8 @@ import os
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
-from . import crud, models, schemas, auth
-from .database import SessionLocal, engine
+from src import crud, models, schemas, auth
+from src.database import SessionLocal, engine
 from dotenv import load_dotenv
 
 load_dotenv()
