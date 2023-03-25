@@ -30,9 +30,9 @@ def get_db():
     finally:
         database.close()
 
-@app.get("/welcome")
+@app.get("/")
 def get_test_resource():
-    return { "message": "recall alerts api" }
+    return { "recall alerts api try appending '/docs' to url and get started" }
 
 
 # register for an account
@@ -68,7 +68,6 @@ def get_subscriber(user_id: int, db: Session = Depends(get_db)):
 
 
 # get subscriptions linked to a subscriber id
-# TODO change to crud.get_user_subscriptions
 # and modify schema to receive list itemtypes
 # or create new schema for both subscriptions and recalled subscriptions
 @app.get("/subscriber/subscriptions/", dependencies=[Depends(auth.JWTBearer())], response_model=List[schemas.Subscription], tags=["subscribers"])
@@ -136,10 +135,7 @@ def check_recall(product: str, subscription_id: int, subscriber_id: int,  db: Se
 	return db_new_recalled_sub
 
 
-# TODO 
-
 # subscribe a new product for alerts
-# TODO:
 # add check to see if new subscription 
 # is already in the recall table
 # if it is, create a new recalled_subscription for the user
@@ -264,16 +260,11 @@ def authenticate_user(user: schemas.UserAuthenticate, db: Session = Depends(get_
 
 
 
-
+# test protected resource access
 @app.get("/protected", dependencies=[Depends(auth.JWTBearer())])
 def get_protected_resource():
     return { "message": "protected resource" }
 
-
-
-'''
-CORS cordova localhost
-'''
 
 from fastapi.middleware.cors import CORSMiddleware
 
