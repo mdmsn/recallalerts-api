@@ -1,12 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
-
-# test soundex
-from sqlalchemy import func
-
-
 import bcrypt
-
 from . import models, schemas
 
 # create new user / subscriber
@@ -17,7 +11,6 @@ def create_user(db: Session, user: schemas.SubscriberCreate):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-
     return db_user
 
 
@@ -29,21 +22,15 @@ def get_subscriber_by_id(db: Session, query_id: int):
     return db.query(models.Subscriber).filter(models.Subscriber.id == query_id).first()
 
 
-
-# get sub email
 def get_email(db: Session, query_id: int):
 	user = db.query(models.Subscriber).filter_by(models.Subscriber.id == query_id).first()
 	return user.email
 
 
 def create_subscriber(db: Session, subscriber: schemas.SubscriberCreate):
-
     # research hash password + database interaction 
     password = subscriber.password# not really hashed
-
     db_subscriber = models.Subscriber(username=subscriber.username, fcm_token=subscriber.fcm_token, password=subscriber.password, email=subscriber.email, mobile_number=subscriber.mobile_number)
-
-
     db.add(db_subscriber)
     #db.flush() # Changed this from db.commit()
     db.commit()
@@ -53,8 +40,6 @@ def create_subscriber(db: Session, subscriber: schemas.SubscriberCreate):
 
 def get_subscription(db: Session, product: str):
     return db.query(models.Subscription).filter(models.Subscription.product == product).first()
-
-
 
   
 def is_subscription(db: Session, product: str):
@@ -67,6 +52,7 @@ def get_subscription_by_id(db: Session, query_id: int):
 	
 def get_user_subscriptions(db: Session, query_id: int, skip: int = 0, limit: int = 100):
 	return db.query(models.Subscription).filter(models.Subscription.subscriber_id == query_id).offset(skip).limit(limit).all()
+
 
 def get_subscriptions_by_product(db: Session, product: str, skip: int = 0, limit: int = 100):
 	return db.query(models.Subscription).filter(models.Subscription.product == product).offset(skip).limit(limit).all()
@@ -126,10 +112,12 @@ def deactivate_user(db: Session, username: str):
 # get recalled sub by subscription id
 def get_recalled_subscription(db: Session, subscription_id: int):
 	return db.query(models.RecalledSubscription).filter(models.RecalledSubscription.subscription_id == subscription_id).first()
-	
+
+
 # get recalled sub linked to subscriber_id
 def get_recalled_subs_by_subscriber_id(db: Session, subscriber_id: int, skip: int = 0, limit: int = 100):
 	return db.query(models.RecalledSubscription).filter(models.RecalledSubscription.subscriber_id == subscriber_id).offset(skip).limit(limit).all()
+
 
 def get_recalls(db: Session, product: str):
     return db.query(models.Recall).filter(models.Recall.product == product).all()
@@ -152,7 +140,6 @@ def get_recall_by_name(db: Session, product: str):
 def new_recalled_subscription(db: Session, subscriber_id: int, recall_id: int, subscription_id: int):
 	db_recalled_subscription = models.RecalledSubscription(subscription_id=subscription_id, subscriber_id = subscriber_id, recall_id=recall_id)
 	db.add(db_recalled_subscription)
-	#db.flush() # Changed this from db.commit()
 	db.commit()
 	db.refresh(db_recalled_subscription)
 	return db_recalled_subscription

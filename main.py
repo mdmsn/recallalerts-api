@@ -37,7 +37,7 @@ def get_test_resource():
 
 # register for an account
 # first, queries database to see if username already taken
-@app.post("/users/register", status_code=201, response_model=schemas.Subscriber, tags=["users"])
+@app.post("/users/register", status_code=201, response_model=schemas.Subscriber, tags=["user"])
 def create_subscriber(subscriber: schemas.SubscriberCreate, db: Session = Depends(get_db)):
     db_subscriber = crud.get_subscriber(db, username=subscriber.username)
     if db_subscriber:
@@ -89,7 +89,7 @@ def get_subscription_by_id(subscription_id: int, db: Session = Depends(get_db)):
 
 
 # match new recalls with current subscriptions
-@app.get("/match-recalls/", dependencies=[Depends(auth.JWTBearer())], response_model=List[schemas.Subscription], tags=["subscribers"])
+@app.get("/match-recalls/", dependencies=[Depends(auth.JWTBearer())], response_model=List[schemas.Subscription], tags=["recalls"])
 def match_recalls(product: str, db: Session = Depends(get_db)):
 	db_subscriptions = crud.get_subscriptions_by_product(db, product=product)
 	
@@ -99,7 +99,7 @@ def match_recalls(product: str, db: Session = Depends(get_db)):
 
 
 # get all recalled subscriptions linked to a subscriber id
-@app.get("/subscriber/recalls/", dependencies=[Depends(auth.JWTBearer())], response_model=List[schemas.RecalledSubscription], tags=["subscribers"])
+@app.get("/subscriber/recalls/", dependencies=[Depends(auth.JWTBearer())], response_model=List[schemas.RecalledSubscription], tags=["subscribers", "recalls"])
 def read_recalled_subscriptions(subscriber_id: int, db: Session = Depends(get_db)):
 	db_subscriber_recalls = crud.get_recalled_subs_by_subscriber_id(db, subscriber_id=subscriber_id)
 	if not db_subscriber_recalls:
@@ -125,7 +125,7 @@ def read_subscription(product: str, db: Session = Depends(get_db)):
 # has a recall on it
 # if a recall is found, the ids supplied in the arguments
 # will be used to create a new recalled subscription entry for user
-@app.post("/isrecalled/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.RecalledSubscription, tags=["subscribers"])
+@app.post("/isrecalled/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.RecalledSubscription, tags=["recalls"])
 def check_recall(product: str, subscription_id: int, subscriber_id: int,  db: Session = Depends(get_db)):
 	db_recall = crud.get_recall_by_name(db, product=product)
 	if db_recall is None:
@@ -149,7 +149,7 @@ def add_subscription(subscription: schemas.SubscriptionCreate, db: Session = Dep
 
 
 # update subscriber's email, 
-@app.patch("/subscriber/update-email/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["subscribers"])
+@app.patch("/subscriber/update-email/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["user"])
 def update_email(email: str, user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
 	#is_user = crud.get_subscriber_by_id(db, id=subscriber.id)
 	
@@ -161,7 +161,7 @@ def update_email(email: str, user: schemas.UserAuthenticate, db: Session = Depen
 
 
 
-@app.post("/subscriber/update-password/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["subscribers"])
+@app.post("/subscriber/update-password/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["user"])
 def update_password(new_password: str, user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
 	is_user = auth.check_username_password(db=db, user=user)
 	if is_user is False:
@@ -171,7 +171,7 @@ def update_password(new_password: str, user: schemas.UserAuthenticate, db: Sessi
 
 
 
-@app.patch("/subscriber/update-mobile/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["subscribers"])
+@app.patch("/subscriber/update-mobile/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["user"])
 def update_mobile(new_mobile: str, user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
 	is_user = auth.check_username_password(db=db, user=user)
 	if is_user is False:
@@ -181,7 +181,7 @@ def update_mobile(new_mobile: str, user: schemas.UserAuthenticate, db: Session =
 
 
 # update subscriber's password, email and mobile chesks id exists first
-@app.post("/subscriber/update-all/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["subscribers"])
+@app.post("/subscriber/update-all/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["user"])
 def update_all(updates: schemas.SubscriberUpdate, user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
 	#existing_details = crud.get_subscriber_by_id(db, query_id=subscriber.id)
 	is_user = auth.check_username_password(db=db, user=user)
@@ -192,7 +192,7 @@ def update_all(updates: schemas.SubscriberUpdate, user: schemas.UserAuthenticate
 
 
 # add or update fcm token
-@app.patch("/update_fcm/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["subscribers"])
+@app.patch("/update_fcm/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["user"])
 def update_fcm_token(token: str, subscriber_id: int, db: Session = Depends(get_db)):
 	db_subscriber = crud.get_subscriber_by_id(db=db,query_id=subscriber_id)
 	if db_subscriber is None:
@@ -203,7 +203,7 @@ def update_fcm_token(token: str, subscriber_id: int, db: Session = Depends(get_d
 # get a specific recalled subscription
 # queries recalled_subscription table using
 # subscriber id and product name supplied in arguments
-@app.get("/subscriber/recalled-product/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Recall, tags=["subscribers"])
+@app.get("/subscriber/recalled-product/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Recall, tags=["recalls"])
 def read_recalled_subscription(product: str, subscriber_id: int, db: Session = Depends(get_db)):
 	sub = crud.get_subscription(db, product=product)
 	recalled_sub = crud.get_recalled_subscription(db, subscription_id=sub.id)
@@ -218,7 +218,7 @@ def read_recalled_subscription(product: str, subscriber_id: int, db: Session = D
 # get a specific recalled subscription
 # queries recalled_subscription table using
 # ubscriber id and subscription id supplied in arguments
-@app.get("/subscriber/recalled-subscription/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Recall, tags=["subscribers"])
+@app.get("/subscriber/recalled-subscription/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Recall, tags=["subscribers", "recalls"])
 def read_recalled_subscription_by_id(subscription_id: int, subscriber_id: int, db: Session = Depends(get_db)):
 	recalled_sub = crud.get_recalled_subscription(db, subscription_id=subscription_id)
 	
@@ -229,7 +229,7 @@ def read_recalled_subscription_by_id(subscription_id: int, subscriber_id: int, d
 
 
 # set subscriber table deactivated to true on the db
-@app.post("/subscriber/deactivate/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["subscribers"])
+@app.post("/subscriber/deactivate/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["subscribers", "user"])
 def deactivate_account(user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
 	is_user = auth.check_username_password(db=db, user=user)
 	if is_user is False:
@@ -240,7 +240,7 @@ def deactivate_account(user: schemas.UserAuthenticate, db: Session = Depends(get
 
 
 # authenticate user (e.g. logins)
-@app.post("/users/auth", response_model=schemas.Token, tags=["users"])
+@app.post("/users/auth", response_model=schemas.Token, tags=["user"])
 def authenticate_user(user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
     # get user by username ... ^^ subcriber? or keep    
     db_user = crud.get_subscriber(db, username=user.username)

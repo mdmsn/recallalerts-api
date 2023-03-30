@@ -1,13 +1,10 @@
 from sqlalchemy import Boolean, Column, Integer, String, Identity, Computed, Date, ForeignKey, Text
 from sqlalchemy.orm import relationship
-
-
 from .database import Base
 
 
 class Subscriber(Base):
     __tablename__ = "subscriber"
-
 
     username = Column(String, unique=True, nullable=False, index=True)
     mobile_number = Column(Integer, index=True)
@@ -17,12 +14,13 @@ class Subscriber(Base):
     id = Column(Integer, primary_key=True, index=True)
     password = Column(Text, nullable=False)
     
-    
     subscriptions =  relationship("Subscription", back_populates="owner")
     recalls = relationship("RecalledSubscription", back_populates="recall_owner")
 
+
 class Subscription(Base):
 	__tablename__ = "subscription"
+
 	product = Column(String, nullable=False, index=True)
 	subscription_date = Column(Date, nullable=False, index=True)
 	description = Column(String, index=True)
@@ -31,10 +29,10 @@ class Subscription(Base):
 
 	owner = relationship("Subscriber", back_populates="subscriptions")
 
+
 class RecalledSubscription(Base):
     __tablename__ = "recalled_subscription"
 
-   
     id = Column(Integer, primary_key=True, index=True)
     subscription_id = Column(Integer, ForeignKey("subscription.id"))
     recall_id = Column(Integer, ForeignKey("recall.id"))
