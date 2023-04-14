@@ -32,7 +32,6 @@ def create_subscriber(db: Session, subscriber: schemas.SubscriberCreate):
     password = subscriber.password# not really hashed
     db_subscriber = models.Subscriber(username=subscriber.username, fcm_token=subscriber.fcm_token, password=subscriber.password, email=subscriber.email, mobile_number=subscriber.mobile_number)
     db.add(db_subscriber)
-    #db.flush() # Changed this from db.commit()
     db.commit()
     db.refresh(db_subscriber)
     return db_subscriber
@@ -63,7 +62,6 @@ def create_subscription(db: Session, subscription: schemas.SubscriptionCreate):
 	# if user not in db run create a new subscriber after
 	db_subscription = models.Subscription(product=subscription.product, subscriber_id = subscription.subscriber_id, description=subscription.description, subscription_date=subscription.subscription_date)
 	db.add(db_subscription)
-	#db.flush() # Changed this from db.commit()
 	db.commit()
 	db.refresh(db_subscription)
 	return db_subscription
@@ -77,7 +75,6 @@ def update_all(db: Session, subscriber: models.Subscriber, updates: schemas.Subs
         setattr(subscriber, key, value)
     db.commit()
     db.refresh(db_subscription)
-    # return a response
     return db_subscriber
 
 

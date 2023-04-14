@@ -8,17 +8,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 allowed_origins = os.getenv('ORIGINS')
 
-
 models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
-
-ACCESS_TOKEN_EXPIRE_MINUTES = 7200
-
-
 
 def get_db():
     """
@@ -30,9 +23,13 @@ def get_db():
     finally:
         database.close()
 
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 7200
+
+
 @app.get("/")
 def get_test_resource():
-    return { "recall alerts api try appending '/docs' to url and get started" }
+    return { "message":"welcome to the recall alerts api. Append '/docs' to the url and get started" }
 
 
 # register for an account
@@ -43,7 +40,6 @@ def create_subscriber(subscriber: schemas.SubscriberCreate, db: Session = Depend
     if db_subscriber:
         raise HTTPException(status_code=409, detail="Username is taken or subscriber already registered")
     return crud.create_user(db=db, user=subscriber)
-
 
 
     
@@ -79,6 +75,7 @@ def get_subscriptions(subscriber_id: int, db: Session = Depends(get_db)):
 	return db_subscriptions
 
 
+
 # get subscription by subscription id
 @app.get("/subscription/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscription, tags=["subscribers"])
 def get_subscription_by_id(subscription_id: int, db: Session = Depends(get_db)):
@@ -86,6 +83,7 @@ def get_subscription_by_id(subscription_id: int, db: Session = Depends(get_db)):
 	if db_subscription is None:
 		raise HTTPException(status_code=404, detail="Subscription not found")
 	return db_subscription
+
 
 
 # match new recalls with current subscriptions
@@ -96,6 +94,7 @@ def match_recalls(product: str, db: Session = Depends(get_db)):
 	if not db_subscriptions:
 		raise HTTPException(status_code=404, detail="New recalls don't appear in any current subscribed products")
 	return db_subscriptions
+
 
 
 # get all recalled subscriptions linked to a subscriber id
@@ -109,7 +108,6 @@ def read_recalled_subscriptions(subscriber_id: int, db: Session = Depends(get_db
 
 
 
-
 # get subscription by product
 @app.get("/subscriber/subscription/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscription, tags=["subscribers"])
 def read_subscription(product: str, db: Session = Depends(get_db)):
@@ -117,6 +115,7 @@ def read_subscription(product: str, db: Session = Depends(get_db)):
 	if db_subscription is None:
 		raise HTTPException(status_code=404, detail="Subscription not found")
 	return db_subscription
+
 
 
 # should be used only with products that have been already subscribed for
@@ -133,6 +132,7 @@ def check_recall(product: str, subscription_id: int, subscriber_id: int,  db: Se
 	recall_id = db_recall.id
 	db_new_recalled_sub = crud.new_recalled_subscription(db, subscriber_id = subscriber_id, subscription_id=subscription_id, recall_id=recall_id)
 	return db_new_recalled_sub
+
 
 
 # subscribe a new product for alerts
@@ -160,7 +160,6 @@ def update_email(email: str, user: schemas.UserAuthenticate, db: Session = Depen
 
 
 
-
 @app.post("/subscriber/update-password/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["user"])
 def update_password(new_password: str, user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
 	is_user = auth.check_username_password(db=db, user=user)
@@ -168,7 +167,6 @@ def update_password(new_password: str, user: schemas.UserAuthenticate, db: Sessi
 		raise HTTPException(status_code=403, detail="Username - password don't match")
 	new_hashed_password = auth.hash_password(new_password)
 	return crud.update(db=db, field="password", attribute=new_hashed_password, username=user.username)
-
 
 
 @app.patch("/subscriber/update-mobile/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["user"])
@@ -189,6 +187,7 @@ def update_all(updates: schemas.SubscriberUpdate, user: schemas.UserAuthenticate
 		raise HTTPException(status_code=403, detail="Username - password don't match")
 	updates.new_password = auth.hash_password(updates.new_password)
 	return crud.update_all(db=db, updates=updates, username=user.username)
+
 
 
 # add or update fcm token
@@ -228,6 +227,7 @@ def read_recalled_subscription_by_id(subscription_id: int, subscriber_id: int, d
 	return crud.get_recall(db, recall_id=recalled_sub.recall_id)
 
 
+
 # set subscriber table deactivated to true on the db
 @app.post("/subscriber/deactivate/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["subscribers", "user"])
 def deactivate_account(user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
@@ -256,7 +256,6 @@ def authenticate_user(user: schemas.UserAuthenticate, db: Session = Depends(get_
             access_token = auth.encode_jwt_token(
                 data={"sub": user.username}, expires_delta=access_token_expires)
             return {"access_token": access_token, "token_type": "Bearer"}
-            
 
 
 
@@ -264,6 +263,7 @@ def authenticate_user(user: schemas.UserAuthenticate, db: Session = Depends(get_
 @app.get("/protected", dependencies=[Depends(auth.JWTBearer())])
 def get_protected_resource():
     return { "message": "protected resource" }
+
 
 
 from fastapi.middleware.cors import CORSMiddleware
