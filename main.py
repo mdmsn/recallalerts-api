@@ -117,13 +117,7 @@ def read_subscription(product: str, db: Session = Depends(get_db)):
 	return db_subscription
 
 
-
-# should be used only with products that have been already subscribed for
-# by the user whose id is given in args
-# ideally used to see if a product in a user's subscription
-# has a recall on it
-# if a recall is found, the ids supplied in the arguments
-# will be used to create a new recalled subscription entry for user
+# check if a given product has been recalled
 @app.post("/isrecalled/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.RecalledSubscription, tags=["recalls"])
 def check_recall(product: str, subscription_id: int, subscriber_id: int,  db: Session = Depends(get_db)):
 	db_recall = crud.get_recall_by_name(db, product=product)
@@ -136,9 +130,7 @@ def check_recall(product: str, subscription_id: int, subscriber_id: int,  db: Se
 
 
 # subscribe a new product for alerts
-# add check to see if new subscription 
-# is already in the recall table
-# if it is, create a new recalled_subscription for the user
+# if user hasn't already subscribed the given product
 @app.post("/subscriber/new-subscription/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscription, tags=["subscribers"])
 def add_subscription(subscription: schemas.SubscriptionCreate, db: Session = Depends(get_db)):
 	db_subscription = crud.get_subscription(db, product=subscription.product)
@@ -159,7 +151,7 @@ def update_email(email: str, user: schemas.UserAuthenticate, db: Session = Depen
 	return crud.update(db=db, field="email", attribute=email, username=user.username)
 
 
-
+# update user password
 @app.post("/subscriber/update-password/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["user"])
 def update_password(new_password: str, user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
 	is_user = auth.check_username_password(db=db, user=user)
@@ -169,6 +161,7 @@ def update_password(new_password: str, user: schemas.UserAuthenticate, db: Sessi
 	return crud.update(db=db, field="password", attribute=new_hashed_password, username=user.username)
 
 
+# update mobile number
 @app.patch("/subscriber/update-mobile/", dependencies=[Depends(auth.JWTBearer())], response_model=schemas.Subscriber, tags=["user"])
 def update_mobile(new_mobile: str, user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
 	is_user = auth.check_username_password(db=db, user=user)
@@ -242,7 +235,6 @@ def deactivate_account(user: schemas.UserAuthenticate, db: Session = Depends(get
 # authenticate user (e.g. logins)
 @app.post("/users/auth", response_model=schemas.Token, tags=["user"])
 def authenticate_user(user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
-    # get user by username ... ^^ subcriber? or keep    
     db_user = crud.get_subscriber(db, username=user.username)
     if db_user is None:
         raise HTTPException(status_code=403, detail="Username or password is incorrect")
@@ -267,7 +259,6 @@ def get_protected_resource():
 
 
 from fastapi.middleware.cors import CORSMiddleware
-
 
 origins = allowed_origins
 
