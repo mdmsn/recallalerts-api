@@ -5,10 +5,10 @@ from sqlalchemy.orm import Session
 from src import crud, models, schemas, auth
 from src.database import SessionLocal, engine
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
-allowed_origins = os.getenv('ORIGINS')
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -22,6 +22,18 @@ def get_db():
         yield database
     finally:
         database.close()
+
+	
+# middleware
+allowed_origins = os.getenv('ORIGINS')
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 7200
@@ -255,17 +267,3 @@ def authenticate_user(user: schemas.UserAuthenticate, db: Session = Depends(get_
 @app.get("/protected", dependencies=[Depends(auth.JWTBearer())])
 def get_protected_resource():
     return { "message": "protected resource" }
-
-
-
-from fastapi.middleware.cors import CORSMiddleware
-
-origins = allowed_origins
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
