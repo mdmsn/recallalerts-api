@@ -9,7 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
-
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
@@ -22,7 +21,6 @@ def get_db():
         yield database
     finally:
         database.close()
-
 	
 # middleware
 allowed_origins = os.getenv('ORIGINS')
