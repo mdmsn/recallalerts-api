@@ -22,7 +22,7 @@ def get_db():
     finally:
         database.close()
 	
-# middleware
+
 allowed_origins = os.getenv('ORIGINS')
 
 app.add_middleware(
