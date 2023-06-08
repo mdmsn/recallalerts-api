@@ -13,7 +13,6 @@ class Subscriber(Base):
     fcm_token = Column(String, index=True)
     id = Column(Integer, primary_key=True, index=True)
     password = Column(Text, nullable=False)
-    
     subscriptions =  relationship("Subscription", back_populates="owner")
     recalls = relationship("RecalledSubscription", back_populates="recall_owner")
 
@@ -26,7 +25,6 @@ class Subscription(Base):
 	description = Column(String, index=True)
 	id = Column(Integer, primary_key=True, index=True)
 	subscriber_id = Column(Integer, ForeignKey("subscriber.id"))
-
 	owner = relationship("Subscriber", back_populates="subscriptions")
 
 
@@ -37,7 +35,6 @@ class RecalledSubscription(Base):
     subscription_id = Column(Integer, ForeignKey("subscription.id"))
     recall_id = Column(Integer, ForeignKey("recall.id"))
     subscriber_id = Column(Integer, ForeignKey("subscriber.id"))
-    
     recall_owner = relationship("Subscriber", back_populates="recalls")
 
 
