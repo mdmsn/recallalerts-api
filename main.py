@@ -9,12 +9,13 @@ from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()
 
 allowed_origins = os.getenv('ORIGINS')
+
 models.Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 app.include_router(users.router)
 app.include_router(subscriber.router)
 app.include_router(subscriptions.router)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
@@ -24,5 +25,5 @@ app.add_middleware(
 )
 
 @app.get("/")
-def get_root_route():
-    return { "welcome to the recall alerts api developed with FastAPI. Append '/docs' to the url to get started" }
+def root():
+    return {"message":"welcome to the recall alerts api developed with FastAPI. Append '/docs' to the url to get started"}

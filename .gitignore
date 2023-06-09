@@ -6,3 +6,9 @@ __pycache__/
 
 # env variables
 .env
+
+# tests
+tests/
+
+#notes
+notes.txt
