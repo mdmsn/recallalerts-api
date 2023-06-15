@@ -33,37 +33,6 @@ def get_subscriber(user_id: int, db: Session = Depends(get_db)):
     return db_subscriber
 
 
-# get subscriptions linked to a subscriber id
-# and modify schema to receive list itemtypes
-# or create new schema for both subscriptions and recalled subscriptions
-@router.get("/subscriptions/", response_model=List[schemas.Subscription])
-def get_subscriptions(subscriber_id: int, db: Session = Depends(get_db)):
-	db_subscriptions = subscriptions_controller.get_user_subscriptions(db, query_id=subscriber_id)
-	if not db_subscriptions:
-		raise HTTPException(status_code=404, detail="Subscriptions for this user not found")
-	return db_subscriptions
-
-
-# get subscription by product
-@router.get("/subscription/", response_model=schemas.Subscription, tags=["subscribers"])
-def read_subscription(product: str, db: Session = Depends(get_db)):
-	db_subscription = subscriptions_controller.get_subscription(db, product=product)
-	if db_subscription is None:
-		raise HTTPException(status_code=404, detail="Subscription not found")
-	return db_subscription
-
-
-#MOVE TO SUBSCRIPTION?
-# subscribe a new product for alerts
-# if user hasn't already subscribed the given product
-@router.post("/new-subscription/", response_model=schemas.Subscription)
-def add_subscription(subscription: schemas.SubscriptionCreate, db: Session = Depends(get_db)):
-	db_subscription = subscriptions_controller.get_subscription(db, product=subscription.product)
-	if db_subscription:
-		raise HTTPException(status_code=400, detail="Product already subscribed for alerts")
-	return subscriptions_controller.create_subscription(db=db, subscription=subscription)
-
-
 # update subscriber's email, 
 @router.patch("/update-email/", response_model=schemas.Subscriber)
 def update_email(email: str, user: schemas.UserAuthenticate, db: Session = Depends(get_db)):

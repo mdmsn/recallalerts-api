@@ -11,6 +11,8 @@ def hash_password(password: str):
 
 def check_username_password(db: Session, user: schemas.UserAuthenticate):
     db_user_info: models.Subscriber = subscriber_controller.get_subscriber(db, username=user.username)
+    if db_user_info is None:
+          return False
     db_pass = db_user_info.password.encode('utf8')
     request_pass = user.password.encode('utf8')
     return bcrypt.checkpw(request_pass, db_pass)

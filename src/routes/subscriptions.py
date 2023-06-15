@@ -24,13 +24,43 @@ def get_subscription_by_id(subscription_id: int, db: Session = Depends(get_db)):
 	return db_subscription
 
 
+# get subscription by product
+@router.get("/product/", response_model=schemas.Subscription)
+def read_subscription(product: str, db: Session = Depends(get_db)):
+	db_subscription = subscriptions_controller.get_subscription(db, product=product)
+	if db_subscription is None:
+		raise HTTPException(status_code=404, detail="Subscription not found")
+	return db_subscription
+
+
+# get subscriptions linked to a subscriber id
+# and modify schema to receive list itemtypes
+# or create new schema for both subscriptions and recalled subscriptions
+@router.get("/subscriptions/", response_model=List[schemas.Subscription])
+def get_subscriptions(subscriber_id: int, db: Session = Depends(get_db)):
+	db_subscriptions = subscriptions_controller.get_user_subscriptions(db, query_id=subscriber_id)
+	if not db_subscriptions:
+		raise HTTPException(status_code=404, detail="Subscriptions for this user not found")
+	return db_subscriptions
+
+
 # match new recalls with current subscriptions
-@router.get("/recalled-subscriptions/", response_model=List[schemas.Subscription])
+@router.get("/product/all/", response_model=List[schemas.Subscription])
 def match_recall_to_subscriptions(recalled_product: str, db: Session = Depends(get_db)):
 	db_subscriptions = subscriptions_controller.get_subscriptions_by_product(db, product=recalled_product)
 	if not db_subscriptions:
 		raise HTTPException(status_code=404, detail="This recall does not appear in any current subscribed products")
 	return db_subscriptions
+
+
+# subscribe a new product for alerts
+# if user hasn't already subscribed the given product
+@router.post("/new/", response_model=schemas.Subscription)
+def add_subscription(subscription: schemas.SubscriptionCreate, db: Session = Depends(get_db)):
+	db_subscription = subscriptions_controller.get_subscription(db, product=subscription.product)
+	if db_subscription:
+		raise HTTPException(status_code=400, detail="Product already subscribed for alerts")
+	return subscriptions_controller.create_subscription(db=db, subscription=subscription)
 
 
 # check if a given product (e.g new additon by the user) has been recalled
@@ -46,7 +76,7 @@ def check_recall(product: str, subscription_id: int, subscriber_id: int,  db: Se
 
 
 # get all recalled subscriptions linked to a subscriber id
-@router.get("/recalls/",  response_model=List[schemas.RecalledSubscription], tags=["subscribers", "recalls"])
+@router.get("/recalled/",  response_model=List[schemas.RecalledSubscription], tags=["recalls"])
 def read_recalled_subscriptions(subscriber_id: int, db: Session = Depends(get_db)):
 	db_subscriber_recalls = subscriber_controller.get_recalled_subs_by_subscriber_id(db, subscriber_id=subscriber_id)
 	if not db_subscriber_recalls:
