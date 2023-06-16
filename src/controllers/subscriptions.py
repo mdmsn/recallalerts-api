@@ -25,6 +25,10 @@ def get_subscription_by_id(db: Session, query_id: int):
 	return db.query(models.Subscription).filter(models.Subscription.subscriber_id == query_id).first()
 
 
+def match_subscription_to_subscriber(db: Session, query_id: int, product: str):
+	return db.query(models.Subscription).filter(models.Subscription.subscriber_id == query_id, models.Subscription.product == product).first()
+
+
 def get_user_subscriptions(db: Session, query_id: int, skip: int = 0, limit: int = 100):
 	return db.query(models.Subscription).filter(models.Subscription.subscriber_id == query_id).offset(skip).limit(limit).all()
 

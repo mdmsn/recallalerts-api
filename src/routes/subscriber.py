@@ -10,7 +10,6 @@ from ..database import get_db
 router = APIRouter(
     prefix="/subscriber",
     tags=["subscribers"],
-    responses={404: {"detail": "Subscriber not found"}},
     dependencies=[Depends(tokens.JWTBearer())]
 )
 

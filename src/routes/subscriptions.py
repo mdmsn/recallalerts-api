@@ -25,9 +25,9 @@ def get_subscription_by_id(subscription_id: int, db: Session = Depends(get_db)):
 
 
 # get subscription by product
-@router.get("/product/", response_model=schemas.Subscription)
-def read_subscription(product: str, db: Session = Depends(get_db)):
-	db_subscription = subscriptions_controller.get_subscription(db, product=product)
+@router.get("/match/", response_model=schemas.Subscription)
+def read_subscription(product: str, subscriber_id: int, db: Session = Depends(get_db)):
+	db_subscription = subscriptions_controller.match_subscription_to_subscriber(db, query_id=subscriber_id, product=product)
 	if db_subscription is None:
 		raise HTTPException(status_code=404, detail="Subscription not found")
 	return db_subscription
@@ -57,7 +57,7 @@ def match_recall_to_subscriptions(recalled_product: str, db: Session = Depends(g
 # if user hasn't already subscribed the given product
 @router.post("/new/", response_model=schemas.Subscription)
 def add_subscription(subscription: schemas.SubscriptionCreate, db: Session = Depends(get_db)):
-	db_subscription = subscriptions_controller.get_subscription(db, product=subscription.product)
+	db_subscription = subscriptions_controller.match_subscription_to_subscriber(db, query_id=subscription.subscriber_id, product=subscription.product)
 	if db_subscription:
 		raise HTTPException(status_code=400, detail="Product already subscribed for alerts")
 	return subscriptions_controller.create_subscription(db=db, subscription=subscription)
