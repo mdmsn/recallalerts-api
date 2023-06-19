@@ -43,7 +43,7 @@ def update_email(email: str, user: schemas.UserAuthenticate, db: Session = Depen
 
 
 # update user password
-@router.post("update-password/", response_model=schemas.Subscriber)
+@router.post("/update-password/", response_model=schemas.Subscriber)
 def update_password(new_password: str, user: schemas.UserAuthenticate, db: Session = Depends(get_db)):
 	is_user = user_credentials.check_username_password(db=db, user=user)
 	if is_user is False:
