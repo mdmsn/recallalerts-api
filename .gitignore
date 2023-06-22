@@ -7,8 +7,8 @@ __pycache__/
 # env variables
 .env
 
-# tests
+# test folder
 tests/
 
-#notes
+# development notes
 notes.txt
