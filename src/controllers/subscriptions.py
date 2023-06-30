@@ -35,18 +35,3 @@ def get_user_subscriptions(db: Session, query_id: int, skip: int = 0, limit: int
 
 def get_subscriptions_by_product(db: Session, product: str, skip: int = 0, limit: int = 100):
 	return db.query(models.Subscription).filter(models.Subscription.product == product).offset(skip).limit(limit).all()
-
-
-# get recalled sub by subscription id
-def get_recalled_subscription(db: Session, subscription_id: int):
-	return db.query(models.RecalledSubscription).filter(models.RecalledSubscription.subscription_id == subscription_id).first()
-
-
-# after a product is found to be present in the recall table
-# use this to create a recalled subscription for user
-def new_recalled_subscription(db: Session, subscriber_id: int, recall_id: int, subscription_id: int):
-	db_recalled_subscription = models.RecalledSubscription(subscription_id=subscription_id, subscriber_id = subscriber_id, recall_id=recall_id)
-	db.add(db_recalled_subscription)
-	db.commit()
-	db.refresh(db_recalled_subscription)
-	return db_recalled_subscription

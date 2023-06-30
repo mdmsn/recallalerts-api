@@ -27,6 +27,9 @@ def get_subscription_by_id(subscription_id: int, db: Session = Depends(get_db)):
 # get subscription by product
 @router.get("/match/", response_model=schemas.Subscription)
 def read_subscription(product: str, subscriber_id: int, db: Session = Depends(get_db)):
+	db_subscriber = subscriber_controller.get_subscriber_by_id(db, query_id=subscriber_id)
+	if db_subscriber is None:
+		raise HTTPException(status_code=404, detail="Incorrect subscriber id provided")
 	db_subscription = subscriptions_controller.match_subscription_to_subscriber(db, query_id=subscriber_id, product=product)
 	if db_subscription is None:
 		raise HTTPException(status_code=404, detail="Subscription not found")
@@ -38,9 +41,12 @@ def read_subscription(product: str, subscriber_id: int, db: Session = Depends(ge
 # or create new schema for both subscriptions and recalled subscriptions
 @router.get("/subscriptions/", response_model=List[schemas.Subscription])
 def get_subscriptions(subscriber_id: int, db: Session = Depends(get_db)):
+	db_subscriber = subscriber_controller.get_subscriber_by_id(db, query_id=subscriber_id)
+	if db_subscriber is None:
+		raise HTTPException(status_code=404, detail="Incorrect subscriber id provided")
 	db_subscriptions = subscriptions_controller.get_user_subscriptions(db, query_id=subscriber_id)
 	if not db_subscriptions:
-		raise HTTPException(status_code=404, detail="Subscriptions for this user not found")
+		raise HTTPException(status_code=200, detail="No subscriptions for this user")
 	return db_subscriptions
 
 
@@ -61,37 +67,3 @@ def add_subscription(subscription: schemas.SubscriptionCreate, db: Session = Dep
 	if db_subscription:
 		raise HTTPException(status_code=400, detail="Product already subscribed for alerts")
 	return subscriptions_controller.create_subscription(db=db, subscription=subscription)
-
-
-# check if a given product (e.g new additon by the user) has been recalled
-# create a new recalled subscription row if a recall is found
-@router.post("/isrecalled/", response_model=schemas.RecalledSubscription)
-def check_recall(product: str, subscription_id: int, subscriber_id: int,  db: Session = Depends(get_db)):
-	db_recall = recalls_controller.get_recall_by_name(db, product=product)
-	if db_recall is None:
-		raise HTTPException(status_code=404, detail="No recalls on this product according to the database")
-	recall_id = db_recall.id
-	db_new_recalled_sub = subscriptions_controller.new_recalled_subscription(db, subscriber_id = subscriber_id, subscription_id=subscription_id, recall_id=recall_id)
-	return db_new_recalled_sub
-
-
-# get all recalled subscriptions linked to a subscriber id
-@router.get("/recalled/",  response_model=List[schemas.RecalledSubscription], tags=["recalls"])
-def read_recalled_subscriptions(subscriber_id: int, db: Session = Depends(get_db)):
-	db_subscriber_recalls = subscriber_controller.get_recalled_subs_by_subscriber_id(db, subscriber_id=subscriber_id)
-	if not db_subscriber_recalls:
-		raise HTTPException(status_code=404, detail="No recalls for this user found")
-	return db_subscriber_recalls
-
-
-## MAYBE MOVE TO RECALLS
-# get a specific recalled subscription
-# queries recalled_subscription table using
-# subscriber id and product name supplied in arguments
-@router.get("/recalled-product/", response_model=schemas.Recall, tags=["recalls"])
-def read_recalled_subscription(product: str, subscriber_id: int, db: Session = Depends(get_db)):
-	sub = subscriptions_controller.get_subscription(db, product=product)
-	recalled_sub = subscriptions_controller.get_recalled_subscription(db, subscription_id=sub.id)	
-	if recalled_sub is None:
-		raise HTTPException(status_code=404, detail="Subscription not found")	
-	return recalls_controller.get_recall(db, recall_id=recalled_sub.recall_id)
