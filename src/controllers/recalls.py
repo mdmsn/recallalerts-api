@@ -4,24 +4,31 @@ import bcrypt
 from .. import models, schemas
 
 
-def get_recalls(db: Session, product: str):
-    return db.query(models.Recall).filter(models.Recall.product == product).all()
-
-
 def get_recall(db: Session, recall_id: int):
 	return db.query(models.Recall).filter(models.Recall.id == recall_id).first()
 
 
-# get recall by product name
-# ideally used to check if a user's subscription
-# should also be added to ther recalled subscriptions table
+def get_product_recalls(db: Session, product: str):
+    '''gets list of recalls for specific product
+		a product can be recalled any number of times'''
+    return db.query(models.Recall).filter(models.Recall.product == product).all()
+
+
 def get_recall_by_name(db: Session, product: str):
+	'''gets a recall for specific product
+		ideally used to check if a user's subscription
+		should also be added to the recalled subscriptions table'''
 	return db.query(models.Recall).filter(models.Recall.product == product).first()
 
 
 # get recalled sub by subscription id
-def get_recalled_subscription(db: Session, subscription_id: int):
-	return db.query(models.RecalledSubscription).filter(models.RecalledSubscription.subscription_id == subscription_id).first()
+def get_recalled_subscription(db: Session, subscription_id: int, subscriber_id):
+	response = db.query(models.RecalledSubscription).filter(
+		models.RecalledSubscription.subscription_id == subscription_id,
+		models.RecalledSubscription.subscriber_id == subscriber_id
+		).first()
+	return response
+
 
 # TODO: perhaps combine it with the above controller
 # see update controller in subcriber module

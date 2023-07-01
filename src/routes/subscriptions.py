@@ -8,7 +8,7 @@ from ..database import get_db
 
 
 router = APIRouter(
-    prefix="/subscription",
+    prefix="/subscriptions",
     tags=["subscriptions"],
     responses={404: {"detail": "Subscription not found"}},
     dependencies=[Depends(tokens.JWTBearer())]
@@ -16,7 +16,7 @@ router = APIRouter(
 
 
 # get subscription by subscription id
-@router.get("/", response_model=schemas.Subscription)
+@router.get("/{subscription_id}", response_model=schemas.Subscription)
 def get_subscription_by_id(subscription_id: int, db: Session = Depends(get_db)):
 	db_subscription = subscriptions_controller.get_subscription_by_id(db, query_id=subscription_id)
 	if db_subscription is None:
@@ -39,7 +39,7 @@ def read_subscription(product: str, subscriber_id: int, db: Session = Depends(ge
 # get subscriptions linked to a subscriber id
 # and modify schema to receive list itemtypes
 # or create new schema for both subscriptions and recalled subscriptions
-@router.get("/subscriptions/", response_model=List[schemas.Subscription])
+@router.get("/all/{subscriber_id}", response_model=List[schemas.Subscription])
 def get_subscriptions(subscriber_id: int, db: Session = Depends(get_db)):
 	db_subscriber = subscriber_controller.get_subscriber_by_id(db, query_id=subscriber_id)
 	if db_subscriber is None:
@@ -49,14 +49,6 @@ def get_subscriptions(subscriber_id: int, db: Session = Depends(get_db)):
 		raise HTTPException(status_code=200, detail="No subscriptions for this user")
 	return db_subscriptions
 
-
-# match new recalls with current subscriptions
-@router.get("/product/all/", response_model=List[schemas.Subscription])
-def match_recall_to_subscriptions(recalled_product: str, db: Session = Depends(get_db)):
-	db_subscriptions = subscriptions_controller.get_subscriptions_by_product(db, product=recalled_product)
-	if not db_subscriptions:
-		raise HTTPException(status_code=404, detail="This recall does not appear in any current subscribed products")
-	return db_subscriptions
 
 
 # subscribe a new product for alerts

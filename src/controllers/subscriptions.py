@@ -6,7 +6,12 @@ from .. import models, schemas
 def create_subscription(db: Session, subscription: schemas.SubscriptionCreate):
 	# probably should be left to client side code: query db to see if user exists then user their id for subscriber_id
 	# if user not in db run create a new subscriber after
-	db_subscription = models.Subscription(product=subscription.product, subscriber_id = subscription.subscriber_id, description=subscription.description, subscription_date=subscription.subscription_date)
+	db_subscription = models.Subscription(
+		product=subscription.product,
+		subscriber_id = subscription.subscriber_id,
+		description=subscription.description,
+		subscription_date=subscription.subscription_date
+		)
 	db.add(db_subscription)
 	db.commit()
 	db.refresh(db_subscription)
