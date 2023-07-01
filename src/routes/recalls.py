@@ -82,7 +82,7 @@ def get_recall_details_for_subscription(subscription_id: int, subscriber_id: int
 	return recalls_controller.get_recall(db, recall_id=recalled_sub.recall_id)
 
 
-## MAYBE MOVE TO RECALLS
+# MAYBE MOVE TO RECALLS
 # get a specific recalled subscription
 # Used only if product name and user id is provied
 # queries subscription table to get subscription id
