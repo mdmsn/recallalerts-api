@@ -16,15 +16,12 @@ Python 3.10
 FastAPI
 
 ## Setup
-1 - Fork repo
 
-2 - Open terminal
+cd /path-to-project/recallalerts-api
 
-3 - cd to project root e.g 'cd /path-to-project/recallalerts-api'
+pip install requirements.txt
 
-4 - pip install requirements.txt
-
-5 - uvicorn main:app --port 8080
+uvicorn main:app --port 8080
 
 ## Status
 Still in development. Constantly refactoring.
