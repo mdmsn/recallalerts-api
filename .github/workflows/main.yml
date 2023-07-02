@@ -1,4 +1,4 @@
-name: ci
+name: recallalerts-api-wf
 
 on:
   push:
