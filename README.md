@@ -18,11 +18,23 @@ FastAPI
 
 ## Setup
 
-cd path-to-project/recallalerts-api
+1. cd to project root folder, i.e. ```cd path-to-project/recallalerts-api```
 
-pip install requirements.txt
+2. ```pip install requirements.txt```
 
-uvicorn main:app --port 8080
+3. Add the following to environment variables:
+
+   DATABASE_URL - _Should be a postgres database_
+
+   ORIGINS - _List of allowed origins_
+
+   TEST_DB - _Another postgres database for tests if needed_
+
+   GENERATED_SECRET_KEY - _Generate your own secret key_
+
+6. run app ```uvicorn main:app --port 8080```
+
+   (8080 can be replaced with port of your own choosing)
 
 ## Status
 Still in development. Constantly refactoring.
