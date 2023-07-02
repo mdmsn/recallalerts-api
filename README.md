@@ -13,6 +13,7 @@ This is the API for a personal full stack project.
 
 ## Technology
 Python 3.10
+
 FastAPI
 
 ## Setup
