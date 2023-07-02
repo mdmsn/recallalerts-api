@@ -18,7 +18,7 @@ FastAPI
 
 ## Setup
 
-cd /path-to-project/recallalerts-api
+cd path-to-project/recallalerts-api
 
 pip install requirements.txt
 
