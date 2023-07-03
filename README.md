@@ -11,7 +11,7 @@ REST API allowing users to add their details to a database in order to register 
 
 This is the API for a personal full stack project.
 
-## Technology
+## Technologies
 Python 3.10
 
 FastAPI
