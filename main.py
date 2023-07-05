@@ -1,6 +1,6 @@
 import os
 from fastapi import FastAPI
-from src.routes import subscriber, subscriptions, users
+from src.routes import subscriber, subscriptions, users, recalls
 from src import models
 from src.database import engine
 from dotenv import load_dotenv
@@ -16,6 +16,7 @@ app = FastAPI()
 app.include_router(users.router)
 app.include_router(subscriber.router)
 app.include_router(subscriptions.router)
+app.include_router(recalls.router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,

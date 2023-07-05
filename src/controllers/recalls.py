@@ -33,7 +33,8 @@ def get_recalled_subscription(db: Session, subscription_id: int, subscriber_id):
 # TODO: perhaps combine it with the above controller
 # see update controller in subcriber module
 def get_recalled_subs_by_subscriber_id(db: Session, subscriber_id: int):
-	return db.query(models.RecalledSubscription).filter(models.RecalledSubscription.subscriber_id == subscriber_id).first()
+	return db.query(models.RecalledSubscription).filter(models.RecalledSubscription.subscriber_id == subscriber_id).all()
+
 
 # after a product is found to be present in the recall table
 # use this to create a recalled subscription for user
