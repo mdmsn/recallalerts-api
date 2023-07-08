@@ -17,16 +17,24 @@ def get_email(db: Session, query_id: int):
 
 
 def update(db: Session, field: str, attribute: str, username: str):
+	# changes row in database corresponding to given field name
 	db_subscriber = db.query(models.Subscriber).filter(models.Subscriber.username == username).first()
-	if field=="email": db_subscriber.email = attribute
-	elif field=="mobile": db_subscriber.mobile_number = attribute
-	elif field=="password": db_subscriber.password = attribute
+	match field:
+		case "email":
+			db_subscriber.email = attribute
+		case "mobile":
+			db_subscriber.mobile_number = attribute
+		case "password":
+			db_subscriber.password = attribute
+		case "fcm_token":
+			db_subscriber.fcm_token = attribute
 	db.commit()
 	db.refresh(db_subscriber)
 	return db_subscriber
 
 
 def update_all(db: Session, updates: schemas.SubscriberUpdate, username: str):
+	# updates all personal details (does not include fcm token)
 	db_subscriber = db.query(models.Subscriber).filter(models.Subscriber.username == username).first()
 	db_subscriber.email = updates.new_email
 	db_subscriber.mobile_number = updates.new_mobile

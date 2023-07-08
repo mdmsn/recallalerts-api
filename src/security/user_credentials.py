@@ -10,6 +10,10 @@ def hash_password(password: str):
 	return hashed_password
 
 def check_username_password(db: Session, user: schemas.UserAuthenticate):
+    '''
+    Encode and compare received plaintext password to the
+    user's hashed password kept in the database
+    '''
     db_user_info: models.Subscriber = subscriber_controller.get_subscriber(db, username=user.username)
     if db_user_info is None:
           return False
@@ -25,4 +29,4 @@ def check_user_role(user_id: int):
       '''
       if user_id == 1:
             return True
-      return True
+      return False

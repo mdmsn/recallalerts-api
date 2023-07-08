@@ -18,8 +18,8 @@ router = APIRouter(
 
 # TODO add a get recall with recall id 
 @router.get("/{id}", response_model=schemas.Recall)
-def get_recall_with_id(id: int, db: Session = Depends(get_db)):
-	db_recall = recalls_controller.get_recall(db, recall_id=id)
+def get_recall_with_id(query_id: int, db: Session = Depends(get_db)):
+	db_recall = recalls_controller.get_recall(db, recall_id=query_id)
 	if db_recall is None:
 		raise HTTPException(status_code=404, detail="No recall associated with this id")
 	return db_recall
