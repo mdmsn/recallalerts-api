@@ -32,7 +32,7 @@ FastAPI
 
    GENERATED_SECRET_KEY - _Generate your own secret key_
 
-6. To run app type the following command: ```uvicorn main:app```
+6. Run the app: ```uvicorn main:app```
 
 
 ## Status
