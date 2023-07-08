@@ -57,6 +57,10 @@ class Recall(RecallBase):
 	id: int
 	class Config:
 		orm_mode = True
+
+
+class RecallCreate(RecallBase):
+	pass
 		
 		
 class SubscriberBase(BaseModel):

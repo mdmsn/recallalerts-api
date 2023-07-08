@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from src import schemas
+from src.security.user_credentials import check_user_role
 from src.security import tokens
-from src.controllers import subscriptions as subscriptions_controller, recalls as recalls_controller
+from src.controllers import subscriptions as subscriptions_controller, recalls as recalls_controller, subscriber as subscriber_controller
 from ..database import get_db
 
 
@@ -24,6 +25,26 @@ def get_recall_with_id(id: int, db: Session = Depends(get_db)):
 	return db_recall
 
 
+
+@router.post("/new", response_model=schemas.Recall)
+def add_new_recall(user: schemas.UserAuthenticate , recall: schemas.RecallCreate, db: Session = Depends(get_db)):
+	'''
+	add new recall
+	only accesible from backend and admins etc
+	'''
+	db_user = subscriber_controller.get_subscriber(db, username=user.username)
+	if db_user is None:
+		raise HTTPException(status_code=403, detail="User not authourised to add recall")
+	is_allowed = check_user_role(user_id=db_user.id)
+	if is_allowed is False:
+		raise HTTPException(status_code=403, detail="User not authourised to add recall")
+	db_recall = recalls_controller.new_recall(db, recall=recall)
+	if db_recall is None:
+		raise HTTPException(status_code=403, detail="Something went wrong")
+	return db_recall
+
+
+
 # TODO get recall
 # add a get recall with recall id
 # appears in any subscriptions
@@ -37,7 +58,7 @@ def get_recalls_for_product(product: str, db: Session = Depends(get_db)):
 
 # check if a given product (e.g new additon by the user) has been recalled
 # create a new recalled subscription row if a recall is found
-@router.post("recalled-subscriptions/new/", response_model=schemas.RecalledSubscription, tags=['subscriptions'])
+@router.post("recalled-subscriptions/new", response_model=schemas.RecalledSubscription, tags=['subscriptions'])
 def add_new_recalled_subscription(product: str, subscription_id: int, subscriber_id: int,  db: Session = Depends(get_db)):
 	db_recall = recalls_controller.get_recall_by_name(db, product=product)
 	if db_recall is None:

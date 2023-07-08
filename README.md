@@ -32,9 +32,8 @@ FastAPI
 
    GENERATED_SECRET_KEY - _Generate your own secret key_
 
-6. run app ```uvicorn main:app --port 8080```
+6. To run app type the following command: ```uvicorn main:app```
 
-   (8080 can be replaced with port of your own choosing)
 
 ## Status
 Still in development. Constantly refactoring.

@@ -16,3 +16,13 @@ def check_username_password(db: Session, user: schemas.UserAuthenticate):
     db_pass = db_user_info.password.encode('utf8')
     request_pass = user.password.encode('utf8')
     return bcrypt.checkpw(request_pass, db_pass)
+
+
+def check_user_role(user_id: int):
+      '''
+      placedholder admin check
+      for recall table
+      '''
+      if user_id == 1:
+            return True
+      return True
